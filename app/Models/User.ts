@@ -27,7 +27,6 @@ export default class User extends BaseModel {
   @beforeSave()
   public static async hashPassword(user: User) {
     if (user.$dirty.password) {
-      console.log('passsword sem hash: ', user)
       user.password = await Hash.make(user.password)
     }
   }
