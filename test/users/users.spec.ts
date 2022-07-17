@@ -11,11 +11,12 @@ test.group('Users', (): void => {
       avatar: 'teste123456789',
     }
     const { body } = await supertest(BASE_URL).post('/users').send(userPayload).expect(201)
+    console.log('Password ', body.password)
     assert.exists(body.user, 'User Undefined')
     assert.exists(body.user.id, 'User Undefined')
     assert.equal(body.user.email, userPayload.email)
     assert.equal(body.user.username, userPayload.username)
-    assert.equal(body.user.password, userPayload.password)
     assert.equal(body.user.avatar, userPayload.avatar)
+    assert.notExists(body.user.password, 'password defined')
   })
 })
