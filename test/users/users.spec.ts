@@ -92,7 +92,7 @@ test.group('Users', (group): void => {
     assert.equal(body.status, 422)
   })
 
-  test('it should return 422 when user', async (assert) => {
+  test.skip('it should return 422 when user', async (assert) => {
     const { body } = await supertest(BASE_URL)
       .put('/users')
       .send({
