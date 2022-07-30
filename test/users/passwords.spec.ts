@@ -6,7 +6,7 @@ import Mail from '@ioc:Adonis/Addons/Mail'
 
 const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
 test.group('Password', (group) => {
-  test.only('it should send and email with forgot password instructions', async (assert) => {
+  test('it should send and email with forgot password instructions', async (assert) => {
     const user = await UserFactory.create()
     // Mail.trap((message) => {
     //   assert.deepEqual(message.from, { address: 'hagleyson' })
@@ -22,6 +22,21 @@ test.group('Password', (group) => {
       })
       .expect(204)
     // Mail.restore()
+  })
+
+  test.only('it should create a reset password token', async (assert) => {
+    const user = await UserFactory.create()
+
+    await supertest(BASE_URL)
+      .post('/forgot-password')
+      .send({
+        email: user.email,
+        resetPasswordUrl: 'url',
+      })
+      .expect(204)
+    const tokens = await user.related('tokens').query()
+    console.log('tokens: ', tokens)
+    assert.isNotEmpty(tokens)
   })
 
   group.beforeEach(async () => {

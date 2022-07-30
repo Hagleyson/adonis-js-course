@@ -10,7 +10,7 @@ export default class LinkToken extends BaseModel {
   public token: string
 
   @column({ columnName: 'user_id' })
-  public UserId: number
+  public userId: number
 
   @belongsTo(() => User, {
     foreignKey: 'userId',
