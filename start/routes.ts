@@ -25,3 +25,4 @@ Route.get('/', async () => {
 })
 
 Route.post('/users', 'UsersController.store')
+Route.post('/forgot-password', 'PasswordsController.forgotPassword')
