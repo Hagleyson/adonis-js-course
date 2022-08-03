@@ -1,3 +1,4 @@
+import Hash from '@ioc:Adonis/Core/Hash'
 import test from 'japa'
 import supertest from 'supertest'
 import Database from '@ioc:Adonis/Lucid/Database'
@@ -100,6 +101,92 @@ test.group('Users', (group): void => {
         password: 'teste',
         username: 'tes',
       })
+      .expect(422)
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
+
+  test('it should update an user', async (assert) => {
+    const { id, password } = await UserFactory.create()
+    const email = 'test@test.com'
+    const avatar =
+      'https://avatars.githubusercontent.com/u/39039209?s=400&u=26fafae5203f09425b551ce1754b9cc93e892da9&v=4'
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${id}`)
+      .send({
+        email,
+        avatar,
+        password,
+      })
+      .expect(200)
+
+    assert.exists(body.user, 'User undefined')
+    assert.equal(body.user.email, email)
+    assert.equal(body.user.avatar, avatar)
+    assert.equal(body.user.id, id)
+  })
+
+  test('it should update the password of the user', async (assert) => {
+    const user = await UserFactory.create()
+    const password = 'password'
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${user.id}`)
+      .send({
+        email: user.email,
+        avatar: user.avatar,
+        password: password,
+      })
+      .expect(200)
+
+    assert.exists(body.user, 'User undefined')
+    assert.equal(body.user.id, user.id)
+    await user.refresh()
+    const passwordIsEqual = await Hash.verify(user.password, password)
+    assert.isTrue(passwordIsEqual)
+  })
+
+  test('it should return 422 when required data is not provided', async (assert) => {
+    const { id } = await UserFactory.create()
+
+    const { body } = await supertest(BASE_URL).put(`/users/${id}`).send({}).expect(422)
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
+
+  test('it should return 422 when providing an invalid email', async (assert) => {
+    const { id, password, avatar } = await UserFactory.create()
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${id}`)
+      .send({
+        password,
+        avatar,
+        email: 'hag@',
+      })
+      .expect(422)
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
+
+  test('it should return 422 when providing an invalid avatar', async (assert) => {
+    const { id, password, email } = await UserFactory.create()
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${id}`)
+      .send({ password, avatar: 'hags', email })
+      .expect(422)
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
+
+  test('it should return 422 when providing an invalid password', async (assert) => {
+    const { id, email, avatar } = await UserFactory.create()
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${id}`)
+      .send({ password: '12', avatar, email })
       .expect(422)
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
