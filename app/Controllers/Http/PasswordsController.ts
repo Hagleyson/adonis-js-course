@@ -4,6 +4,8 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { randomBytes } from 'crypto'
 import { promisify } from 'util'
 import ForgotPasswordValidator from 'App/Validators/ForgotPasswordValidator'
+import ResetPasswordValidator from 'App/Validators/ResetPasswordValidator'
+import TokenExpiredException from 'App/Exceptions/TokenExpiredException'
 
 export default class PasswordsController {
   public async forgotPassword({ request, response }: HttpContextContract) {
@@ -28,6 +30,22 @@ export default class PasswordsController {
         })
     })
 
+    return response.noContent()
+  }
+  public async resetPassword({ request, response }: HttpContextContract) {
+    const { token, password } = await request.validate(ResetPasswordValidator)
+    const userByToken = await User.query()
+      .whereHas('tokens', (tokens) => tokens.where('token', token))
+      .preload('tokens')
+      .firstOrFail()
+
+    if (Math.abs(userByToken.tokens[0].createdAt.diffNow('hours').hours) > 2) {
+      throw new TokenExpiredException()
+    }
+
+    userByToken.password = password
+    await userByToken.save()
+    await userByToken.tokens[0].delete()
     return response.noContent()
   }
 }
