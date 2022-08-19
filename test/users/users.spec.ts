@@ -108,7 +108,7 @@ test.group('Users', (group): void => {
     assert.equal(body.status, 422)
   })
 
-  test.only('it should update an user', async (assert) => {
+  test('it should update an user', async (assert) => {
     const email = 'test@test.com'
     const avatar =
       'https://avatars.githubusercontent.com/u/39039209?s=400&u=26fafae5203f09425b551ce1754b9cc93e892da9&v=4'
@@ -129,7 +129,7 @@ test.group('Users', (group): void => {
     assert.equal(body.user.id, user.id)
   })
 
-  test.only('it should update the password of the user', async (assert) => {
+  test('it should update the password of the user', async (assert) => {
     const password = 'password'
 
     const { body } = await supertest(BASE_URL)
