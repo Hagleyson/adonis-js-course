@@ -59,7 +59,7 @@ test.group('Password', (group) => {
       .set('Authorization', `Bearer ${apiToken.token}`)
       .expect(200)
   })
-  test.only('it should revoke token when user sings out', async (assert) => {
+  test('it should revoke token when user sings out', async (assert) => {
     const plainPassword = 'test'
     const { email } = await UserFactory.merge({ password: plainPassword }).create()
     const response = await supertest(BASE_URL)
@@ -69,16 +69,12 @@ test.group('Password', (group) => {
 
     const apiToken = await response.body.token
 
-    const tokenBeforeSignout = await Database.query().select('*').from('api_tokens')
-    console.log({ tokenBeforeSignout })
-
     await supertest(BASE_URL)
       .delete('/sessions')
       .set('Authorization', `Bearer ${apiToken.token}`)
       .expect(200)
 
     const token = await Database.query().select('*').from('api_tokens')
-    console.log({ token })
   })
 
   group.beforeEach(async () => {
