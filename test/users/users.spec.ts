@@ -95,15 +95,16 @@ test.group('Users', (group): void => {
     assert.equal(body.status, 422)
   })
 
-  test.skip('it should return 422 when user', async (assert) => {
+  test('it should return 422 when user', async (assert) => {
     const { body } = await supertest(BASE_URL)
-      .put('/users')
+      .post('/users')
       .send({
-        email: 'test@gmail.com',
-        password: 'teste',
+        email: 'tes',
+        password: 'te',
         username: 'tes',
       })
       .expect(422)
+
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
   })
@@ -130,15 +131,15 @@ test.group('Users', (group): void => {
   })
 
   test('it should update the password of the user', async (assert) => {
-    const password = 'password'
+    const password = '1234'
 
     const { body } = await supertest(BASE_URL)
       .put(`/users/${user.id}`)
       .set('Authorization', `Bearer ${apiToken}`)
       .send({
         email: user.email,
-        avatar: user.avatar,
         password: password,
+        avatar: 'http://www.google.com',
       })
       .expect(200)
 
@@ -149,10 +150,14 @@ test.group('Users', (group): void => {
     assert.isTrue(passwordIsEqual)
   })
 
-  test.skip('it should return 422 when required data is not provided', async (assert) => {
+  test('it should return 422 when required data is not provided', async (assert) => {
     const { id } = await UserFactory.create()
 
-    const { body } = await supertest(BASE_URL).put(`/users/${id}`).send({}).expect(422)
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${id}`)
+      .set('Authorization', `Bearer ${apiToken}`)
+      .send({})
+      .expect(422)
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
   })

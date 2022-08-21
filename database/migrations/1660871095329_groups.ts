@@ -7,7 +7,7 @@ export default class Groups extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.string('name').notNullable()
-      table.string('description').notNullable()
+      table.text('description').notNullable()
       table.string('chronic').notNullable()
       table.string('schedule').notNullable()
       table.string('location').notNullable()

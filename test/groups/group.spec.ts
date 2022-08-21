@@ -9,7 +9,7 @@ let apiToken = ''
 let user = {} as User
 
 test.group('Group', (group) => {
-  test.only('it should create a group', async (assert) => {
+  test('it should create a group', async (assert) => {
     const user = await UserFactory.create()
     const groupPayload = {
       name: 'teste',
@@ -38,7 +38,11 @@ test.group('Group', (group) => {
   })
 
   test('it should return 422 when required data is not provided', async (assert) => {
-    const { body } = await supertest(BASE_URL).post('/groups').send({}).expect(422)
+    const { body } = await supertest(BASE_URL)
+      .post('/groups')
+      .set('Authorization', `Bearer ${apiToken}`)
+      .send({})
+      .expect(422)
 
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
